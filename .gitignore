@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environnements virtuels
+venv/
+.env/
+.venv/
+env/
+
+# Variables d'environnement
+.env
+.env.local
+*.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Données
+data/raw/
+data/processed/
+*.csv
+*.xlsx
+*.json
+
+# Modèles sérialisés
+*.pkl
+*.joblib
+*.h5
+*.pt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml
