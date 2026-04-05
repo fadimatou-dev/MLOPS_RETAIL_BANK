@@ -3,12 +3,10 @@ import numpy as np
 import joblib
 import os
 
-# Test 1 : Vérifier que les fichiers de données existent
 def test_data_files_exist():
     assert os.path.exists("data/X_scaled.npy"), "X_scaled.npy manquant"
     assert os.path.exists("data/y.npy"), "y.npy manquant"
 
-# Test 2 : Vérifier que les données sont au bon format
 def test_data_format():
     X = np.load("data/X_scaled.npy")
     y = np.load("data/y.npy")
@@ -16,11 +14,9 @@ def test_data_format():
     assert y.ndim == 1, "y doit être un vecteur 1D"
     assert len(X) == len(y), "X et y doivent avoir le même nombre de lignes"
 
-# Test 3 : Vérifier que le modèle existe
 def test_model_exists():
     assert os.path.exists("models/artifacts/logistic_regression_best_model.joblib"), "Modèle manquant"
 
-# Test 4 : Vérifier que le modèle prédit correctement
 def test_model_prediction():
     model = joblib.load("models/artifacts/logistic_regression_best_model.joblib")
     X = np.load("data/X_scaled.npy")
@@ -28,7 +24,6 @@ def test_model_prediction():
     assert len(predictions) == 5, "Le modèle doit retourner 5 prédictions"
     assert set(predictions).issubset({0, 1}), "Les prédictions doivent être 0 ou 1"
 
-# Test 5 : Vérifier les imports essentiels
 def test_imports():
     import streamlit
     import sklearn
