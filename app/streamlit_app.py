@@ -682,7 +682,7 @@ def format_pct(value: float) -> str:
 # =========================
 st.set_page_config(
     page_title="RetailBank · Credit Risk",
-    page_icon="🏛️",
+    page_icon="https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
