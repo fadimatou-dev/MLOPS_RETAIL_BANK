@@ -10,12 +10,14 @@ Objectifs :
 - Déployer un modèle d'apprentissage automatique opérationnel
 
 MLOps Pipeline : 
-graph LR
-A[Data Collection] --> B[Data Preprocessing]
-B --> C[Feature Engineering]
-C --> D[Model Training]
-D --> E[Experiment Tracking MLflow]
-E --> F[Model Selection]
-F --> G[Deployment API / App]
-G --> H[CI/CD Pipeline]
+- Data Collection
+- Data Preprocessing
+- Feature Engineering
+- Model Training
+- Experiment Tracking MLflow
+- Model Selection
+- Deployment API / App
+- CI/CD Pipeline
+
+
 
