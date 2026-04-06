@@ -9,3 +9,13 @@ Objectifs :
 - Optimiser l'allocation du capital
 - Déployer un modèle d'apprentissage automatique opérationnel
 
+MLOps Pipeline : 
+graph LR
+A[Data Collection] --> B[Data Preprocessing]
+B --> C[Feature Engineering]
+C --> D[Model Training]
+D --> E[Experiment Tracking MLflow]
+E --> F[Model Selection]
+F --> G[Deployment API / App]
+G --> H[CI/CD Pipeline]
+
