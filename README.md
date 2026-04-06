@@ -41,6 +41,7 @@ MLflow est utilisé pour suivre les expériences. Chaque modèle possède sa pro
 
 ## Streamlit 
 Le modèle est déployé sous forme d'application et les utilisateurs peuvent tester les prédictions en ligne.
+Le Streamlit : https://credit-default-predictor.streamlit.app/
 
 ## CI/CD
 Le processus est automatisé et chaque impulsion peut déclencher des tests et un déploiement.
