@@ -160,3 +160,24 @@ Puis elle :
 - affiche une classe prédite selon un seuil ajustable.
 
 ---
+
+## 5. Tests et vérifications
+
+### Lancer les tests
+```bash
+pytest tests/ -v
+```
+
+### Ce que couvrent les tests actuels
+- présence des fichiers de données ;
+- cohérence dimensionnelle de `X` et `y` ;
+- présence du modèle sérialisé ;
+- capacité du modèle à produire 5 prédictions ;
+- disponibilité des imports principaux.
+
+### Points d'attention identifiés pendant l'exploration
+- Le modèle sérialisé est sensible à la **version de `scikit-learn`**. Une incompatibilité de version peut casser le chargement du pipeline joblib.
+- Le fichier `requirements.txt` fixe bien `scikit-learn==1.7.2` : il est préférable de conserver cet alignement entre entraînement, test et déploiement.
+- La CI actuelle reste légère : elle ne couvre ni linting, ni build Docker, ni validation du notebook, ni tests d'intégration Streamlit.
+
+---

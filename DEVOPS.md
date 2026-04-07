@@ -36,3 +36,36 @@ Le dépôt dispose aujourd'hui surtout d'une **CI de validation basique**, pas e
 - aucun secret n'est référencé dans le workflow.
 
 ---
+
+## 2. Standards de travail recommandés
+
+### Version de Python et dépendances
+Pour conserver un comportement stable, il est recommandé de standardiser l'environnement sur :
+- **Python 3.10**
+- **scikit-learn 1.7.2**
+
+Ce point est particulièrement important car les objets `joblib` de scikit-learn peuvent devenir incompatibles si le modèle est sérialisé avec une version puis relu avec une autre.
+
+### Workflow développeur recommandé
+1. créer une branche dédiée ;
+2. installer les dépendances localement ;
+3. exécuter `python app/prepare_model.py` si les artefacts doivent être régénérés ;
+4. lancer `pytest tests/ -v` ;
+5. vérifier l'application via `streamlit run app/streamlit_app.py` ;
+6. ouvrir une Pull Request vers `main`.
+
+### Convention de branches suggérée
+- `main` : branche stable / démonstration ;
+- `develop` : intégration continue si tu veux industrialiser davantage ;
+- `feature/*` : nouvelles fonctionnalités ;
+- `fix/*` : corrections ciblées ;
+- `docs/*` : documentation.
+
+### Recommandations qualité
+À court terme, il serait utile d'ajouter :
+- `black` pour le formatage ;
+- `ruff` ou `flake8` pour le linting ;
+- éventuellement `mypy` pour un contrôle de typage plus strict ;
+- une couverture de tests via `pytest-cov`.
+
+---
