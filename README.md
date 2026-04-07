@@ -181,3 +181,24 @@ pytest tests/ -v
 - La CI actuelle reste légère : elle ne couvre ni linting, ni build Docker, ni validation du notebook, ni tests d'intégration Streamlit.
 
 ---
+
+## 6. Exécution avec Docker 
+
+### Construire l'image
+```bash
+docker build -f cicd/Dockerfile -t mlops-retail-bank .
+```
+
+### Lancer le conteneur
+```bash
+docker run --rm -p 8501:8501 mlops-retail-bank
+```
+
+Le `Dockerfile` actuel :
+- part de `python:3.10-slim` ;
+- installe les dépendances du `requirements.txt` ;
+- copie le dépôt complet dans l'image ;
+- expose le port **8501** ;
+- lance `streamlit run app/streamlit_app.py`.
+
+---

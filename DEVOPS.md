@@ -69,3 +69,40 @@ Ce point est particulièrement important car les objets `joblib` de scikit-learn
 - une couverture de tests via `pytest-cov`.
 
 ---
+
+## 3. Conteneurisation et exécution applicative
+
+### Dockerfile actuel
+Le `Dockerfile` du projet est volontairement simple :
+- image de base `python:3.10-slim` ;
+- copie du `requirements.txt` ;
+- installation des dépendances ;
+- copie du code ;
+- exposition du port `8501` ;
+- lancement de Streamlit.
+
+### Commandes utiles
+```bash
+docker build -f cicd/Dockerfile -t mlops-retail-bank .
+docker run --rm -p 8501:8501 mlops-retail-bank
+```
+
+### Améliorations possibles sur l'image
+Pour une industrialisation plus propre, on peut ajouter :
+- un utilisateur non-root ;
+- une meilleure gestion du cache des couches ;
+- un `.dockerignore` ;
+- des variables d'environnement pour la configuration ;
+- un healthcheck ;
+- un tag d'image versionné par commit SHA.
+
+### Cible de déploiement envisageable
+Le projet peut être déployé sur plusieurs cibles simples :
+- **Streamlit Community Cloud** pour une démo ;
+- **Azure Web App / Container Apps** ;
+- **AWS App Runner / ECS Fargate** ;
+- **Google Cloud Run**.
+
+Pour un projet de portefeuille ou de soutenance, **Cloud Run** ou **Azure Container Apps** sont souvent un bon compromis entre simplicité et lisibilité DevOps.
+
+---
