@@ -42,3 +42,39 @@ Les métriques affichées dans le code applicatif sont les suivantes :
 > Ces métriques proviennent du notebook / des constantes applicatives présentes dans le dépôt. Elles doivent être considérées comme les métriques de référence du projet tant qu'aucun nouveau run MLflow ne les remplace.
 
 ---
+
+## 2. Structure du repository 
+
+```text
+MLOPS_RETAIL_BANK/
+├── .github/workflows/deploy.yml      # CI actuelle : installation + pytest
+├── app/
+│   ├── prepare_model.py              # reconstruit et sérialise le meilleur modèle
+│   └── streamlit_app.py              # interface d'inférence Streamlit
+├── cicd/
+│   └── Dockerfile                    # conteneur de l'application
+├── data/
+│   ├── X_scaled.npy                  # features d'entraînement déjà préparées
+│   └── y.npy                         # cible binaire défaut / non défaut
+├── models/
+│   └── artifacts/
+│       └── logistic_regression_best_model.joblib
+├── notebooks/
+│   ├── data_exploration.ipynb        # EDA, anomalies, feature engineering
+│   └── train_model.ipynb             # benchmark modèles, MLflow, sélection finale
+├── tests/
+│   └── test_app.py                   # tests de présence, format et prédiction
+├── DEVOPS.md
+├── README.md
+└── requirements.txt
+```
+
+### Rôle des principaux composants
+- **`notebooks/data_exploration.ipynb`** : exploration, visualisations, détection d'anomalies, création de variables dérivées, première sélection de variables.
+- **`notebooks/train_model.ipynb`** : split train/test, validation croisée, recherche d'hyperparamètres, tracking MLflow, comparaison des modèles et sauvegarde des artefacts.
+- **`app/prepare_model.py`** : script de reconstruction du pipeline scikit-learn et de génération des artefacts de déploiement.
+- **`app/streamlit_app.py`** : application d'inférence avec saisie utilisateur, standardisation des variables et affichage du score de risque.
+- **`cicd/Dockerfile`** : conteneur minimal permettant d'exécuter Streamlit sur le port 8501.
+- **`.github/workflows/deploy.yml`** : première base de CI déclenchée au `push` sur `main`.
+
+---
