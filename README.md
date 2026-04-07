@@ -111,3 +111,52 @@ Le fonctionnement nominal du projet repose sur :
 - éventuellement `models/artifacts/deployment_metadata.json` après exécution de `prepare_model.py`
 
 ---
+
+## 4. Installation locale et démarrage 
+
+### Prérequis
+- Python **3.10** recommandé ;
+- pip ;
+- Git ;
+- Docker en option.
+
+### Installation
+```bash
+git clone <url-du-repo>
+cd MLOPS_RETAIL_BANK
+python -m venv .venv
+source .venv/bin/activate      # Linux / macOS
+# ou
+.venv\Scripts\activate         # Windows
+pip install -r requirements.txt
+```
+
+### Reconstruire les artefacts modèle
+```bash
+python app/prepare_model.py
+```
+
+Cette commande :
+- recharge `X_scaled.npy` et `y.npy` ;
+- réentraîne la régression logistique retenue ;
+- sauvegarde le modèle dans `models/artifacts/` ;
+- génère un fichier `deployment_metadata.json`.
+
+### Lancer l'application Streamlit
+```bash
+streamlit run app/streamlit_app.py
+```
+
+L'application permet de saisir :
+- le nombre de lignes de crédit ;
+- le montant du prêt restant dû ;
+- la dette totale ;
+- le revenu annuel.
+
+Puis elle :
+- construit les variables dérivées ;
+- les standardise ;
+- calcule la probabilité de défaut ;
+- affiche une classe prédite selon un seuil ajustable.
+
+---
