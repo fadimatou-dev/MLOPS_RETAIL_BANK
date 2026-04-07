@@ -78,3 +78,36 @@ MLOPS_RETAIL_BANK/
 - **`.github/workflows/deploy.yml`** : première base de CI déclenchée au `push` sur `main`.
 
 ---
+
+## 3. Pipeline fonctionnel et logique ML 
+
+### Chaîne de traitement actuelle
+1. **Exploration** des données et analyse métier dans `data_exploration.ipynb`.
+2. **Feature engineering** avec création notamment de `debt_to_income` et `financial_burden`.
+3. **Sélection / comparaison** de plusieurs modèles dans `train_model.ipynb`.
+4. **Choix du meilleur modèle** selon `test_roc_auc`, puis `test_pr_auc`, puis `test_recall`.
+5. **Sérialisation** du pipeline final en `.joblib`.
+6. **Chargement dans Streamlit** pour permettre une simulation utilisateur.
+
+### Modèles comparés dans le notebook
+- régression logistique ;
+- arbre de décision ;
+- random forest.
+
+### Particularités d'implémentation à connaître
+- Le modèle final est encapsulé dans un `Pipeline` scikit-learn avec :
+  - `SimpleImputer(strategy="median")`
+  - `LogisticRegression(C=10.0, solver="lbfgs", class_weight="balanced", max_iter=2000, random_state=42)`
+- L'application Streamlit **ne demande pas directement les 4 variables finales** ; elle calcule certaines features à partir d'entrées métier :
+  - `debt_to_income = total_debt_outstanding / income`
+  - `financial_burden = credit_lines_outstanding * loan_amt_outstanding`
+- Les statistiques de standardisation sont **codées en dur** dans l'application et dans `prepare_model.py`.
+
+### Artefacts attendus
+Le fonctionnement nominal du projet repose sur :
+- `data/X_scaled.npy`
+- `data/y.npy`
+- `models/artifacts/logistic_regression_best_model.joblib`
+- éventuellement `models/artifacts/deployment_metadata.json` après exécution de `prepare_model.py`
+
+---
