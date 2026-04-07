@@ -106,3 +106,112 @@ Le projet peut être déployé sur plusieurs cibles simples :
 Pour un projet de portefeuille ou de soutenance, **Cloud Run** ou **Azure Container Apps** sont souvent un bon compromis entre simplicité et lisibilité DevOps.
 
 ---
+
+## 4. Gestion de la configuration, des secrets et des artefacts
+
+### Configuration applicative
+Aujourd'hui, plusieurs éléments sont codés en dur dans le dépôt :
+- les statistiques de standardisation ;
+- certains paramètres du modèle ;
+- le seuil de décision par défaut côté interface.
+
+Pour une version plus robuste, il est conseillé de séparer :
+- la **configuration applicative** ;
+- la **configuration d'environnement** ;
+- les **artefacts de modèle**.
+
+### Secrets
+Même si le dépôt ne manipule pas encore de secrets sensibles, la bonne pratique est de préparer dès maintenant :
+- un fichier `.env` non versionné ;
+- des secrets GitHub Actions pour les futurs déploiements ;
+- des variables de configuration pour l'URL MLflow, le stockage d'artefacts, ou les accès cloud.
+
+### Gestion des artefacts ML
+Le projet contient déjà un modèle sérialisé et prévoit aussi un fichier `deployment_metadata.json`. Pour aller plus loin, on recommande :
+- un stockage des artefacts hors du repo si leur volume augmente ;
+- un versioning clair des modèles ;
+- un mapping entre version de code, version de données et version de modèle ;
+- un registre de modèles si MLflow est industrialisé.
+
+### Remarques de robustesse observées pendant l'exploration
+- le workflow CI ne régénère pas le modèle avant les tests ;
+- les tests supposent la présence locale d'artefacts et de données ;
+- le `.gitignore` mérite une petite revue, car sa dernière ligne semble corrompue ;
+- la documentation DevOps était initialement presque vide, ce fichier sert donc aussi de base de structuration pour la suite.
+
+---
+
+## 5. Cible CI/CD recommandée à moyen terme
+
+### CI cible
+Une CI plus complète pourrait exécuter les étapes suivantes à chaque Pull Request :
+1. checkout du code ;
+2. installation Python ;
+3. cache pip ;
+4. lint (`black --check`, `ruff`) ;
+5. tests unitaires ;
+6. tests d'intégration simples ;
+7. build Docker ;
+8. publication éventuelle d'un rapport de couverture.
+
+### CD cible
+Une CD simple mais crédible pourrait être :
+1. merge dans `main` ;
+2. build de l'image Docker ;
+3. tag par SHA Git ;
+4. push vers un registre ;
+5. déploiement sur un environnement cible ;
+6. smoke test post-déploiement ;
+7. rollback automatique en cas d'échec.
+
+### Exemple de séparation des environnements
+- **dev** : expérimentation, tests visuels Streamlit ;
+- **staging** : validation avant démonstration ;
+- **prod** : environnement publié.
+
+---
+
+## 6. Observabilité, sécurité et exploitation
+
+### Observabilité minimale recommandée
+Pour passer du prototype à une application exploitable, il faut ajouter :
+- des logs structurés ;
+- des logs d'erreurs exploitables ;
+- une journalisation des versions de modèle ;
+- des métriques d'usage de l'application ;
+- un suivi du drift de données et du drift de performance.
+
+### Sécurité
+Quelques mesures simples peuvent déjà être prévues :
+- ne pas committer de secrets ;
+- scanner les dépendances ;
+- geler les versions critiques ;
+- limiter les permissions GitHub Actions ;
+- utiliser des images de base maintenues.
+
+### MLOps / exploitation modèle
+À terme, le cycle modèle idéal serait :
+- entraînement reproductible ;
+- tracking MLflow ;
+- validation automatique ;
+- promotion du modèle ;
+- déploiement contrôlé ;
+- monitoring ;
+- retraining planifié si dérive.
+
+---
+
+## 7. Résumé opérationnel
+
+En l'état, **MLOPS_RETAIL_BANK** est un bon **prototype de démonstration MLOps** :
+- la chaîne de modélisation est visible ;
+- l'inférence est exposée dans une interface ;
+- le socle de tests et de CI existe ;
+- la conteneurisation est amorcée.
+
+Pour atteindre un niveau plus professionnel, la priorité DevOps est claire :
+1. fiabiliser l'environnement ;
+2. renforcer la CI ;
+3. versionner proprement les artefacts ;
+4. formaliser la CD ;
+5. ajouter observabilité et configuration sécurisée.

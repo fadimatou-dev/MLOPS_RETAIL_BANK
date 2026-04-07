@@ -202,3 +202,16 @@ Le `Dockerfile` actuel :
 - lance `streamlit run app/streamlit_app.py`.
 
 ---
+
+## 7. Limites actuelles et prochaines améliorations
+
+Le dépôt constitue une bonne base de démonstration MLOps, mais plusieurs axes d'industrialisation restent ouverts :
+- externaliser la configuration et les seuils dans des variables d'environnement ;
+- versionner plus proprement les datasets et les artefacts ;
+- brancher un vrai serveur MLflow distant ;
+- enrichir la CI avec lint, formatage, build Docker et tests d'intégration ;
+- ajouter un vrai déploiement continu ;
+- sécuriser la gestion des secrets et de la configuration ;
+- documenter un cycle de vie modèle plus complet : retraining, registry, rollback, monitoring.
+
+Pour la partie industrialisation, voir aussi **`DEVOPS.md`**.
