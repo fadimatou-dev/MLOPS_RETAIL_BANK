@@ -728,15 +728,14 @@ col_left, col_right = st.columns([1.1, 1], gap="large")
 with col_left:
     st.markdown("## Simulation de risque client")
     st.caption(
-        "Renseignez les données brutes du client. Le modèle calcule automatiquement "
-        "les variables dérivées `debt_to_income` et `financial_burden`."
+        "Renseignez les données brutes du client."
     )
 
     with st.form("simulation_form"):
         st.markdown('<div class="card-title">👤 Données financières du client</div>', unsafe_allow_html=True)
 
         credit_lines_outstanding = st.number_input(
-            "Lignes de crédit en cours",
+            "Nombre de crédit en cours",
             min_value=0, max_value=20, value=1, step=1,
             help="Nombre de lignes de crédit ouvertes.",
         )
@@ -817,9 +816,6 @@ with col_right:
                 }).T
                 engineered_display.columns = ["Valeur"]
                 st.dataframe(engineered_display, use_container_width=True)
-
-                st.markdown("**Variables standardisées envoyées au modèle**")
-                st.dataframe(scaled_features, use_container_width=True, hide_index=True)
 
         except Exception as exc:
             st.exception(exc)
