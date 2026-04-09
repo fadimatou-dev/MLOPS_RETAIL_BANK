@@ -450,72 +450,40 @@ def render_banner():
 def render_gauge(probability: float, risk_label: str):
     pct = probability * 100
 
-    # Couleur selon le risque
     if pct < 20:
         color = "#28a745"
-        glow = "rgba(40,167,69,0.4)"
     elif pct < 50:
         color = "#ffc107"
-        glow = "rgba(255,193,7,0.4)"
     elif pct < 75:
         color = "#fd7e14"
-        glow = "rgba(253,126,20,0.4)"
     else:
         color = "#dc3545"
-        glow = "rgba(220,53,69,0.4)"
 
-    # Calcul angle de l'aiguille (-130° à +130°, soit 260° total)
-    angle = -130 + (pct / 100) * 260
-
-    # Arc SVG : rayon 80, centre 120,110
-    import math
-    def polar_to_xy(deg, r=80, cx=120, cy=110):
-        rad = math.radians(deg)
-        return cx + r * math.cos(rad), cy + r * math.sin(rad)
-
-    # Points de l'arc (de -130° à angle)
-    def arc_path(start_deg, end_deg, r=80, cx=120, cy=110):
-        steps = max(int(abs(end_deg - start_deg)), 2)
-        points = []
-        for i in range(steps + 1):
-            deg = start_deg + (end_deg - start_deg) * i / steps
-            x, y = polar_to_xy(deg, r, cx, cy)
-            points.append(f"{x:.1f},{y:.1f}")
-        return "M " + " L ".join(points)
-
-    arc_bg = arc_path(-130, 130)
-    arc_fill = arc_path(-130, -130 + (pct / 100) * 260)
-
-    # Aiguille
-    needle_angle = angle
-    nx, ny = polar_to_xy(needle_angle, 68)
+    bar_width = int(pct)
 
     st.markdown(f"""
     <div class="gauge-container">
         <div class="gauge-title">📊 Probabilité de Défaut</div>
-        <div class="gauge-svg-wrap">
-            <svg width="240" height="145" viewBox="0 0 240 145">
-                <!-- Arc de fond -->
-                <path d="{arc_bg}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="14" stroke-linecap="round"/>
-                <!-- Zones colorées fixes -->
-                <path d="{arc_path(-130, -130 + 0.20*260)}" fill="none" stroke="rgba(40,167,69,0.25)" stroke-width="14" stroke-linecap="round"/>
-                <path d="{arc_path(-130 + 0.20*260, -130 + 0.50*260)}" fill="none" stroke="rgba(255,193,7,0.2)" stroke-width="14" stroke-linecap="round"/>
-                <path d="{arc_path(-130 + 0.50*260, -130 + 0.75*260)}" fill="none" stroke="rgba(253,126,20,0.2)" stroke-width="14" stroke-linecap="round"/>
-                <path d="{arc_path(-130 + 0.75*260, 130)}" fill="none" stroke="rgba(220,53,69,0.2)" stroke-width="14" stroke-linecap="round"/>
-                <!-- Arc rempli dynamique -->
-                <path d="{arc_fill}" fill="none" stroke="{color}" stroke-width="14" stroke-linecap="round"
-                      style="filter: drop-shadow(0 0 6px {glow})"/>
-                <!-- Aiguille -->
-                <line x1="120" y1="110" x2="{nx:.1f}" y2="{ny:.1f}"
-                      stroke="{color}" stroke-width="3" stroke-linecap="round"
-                      style="filter: drop-shadow(0 0 4px {glow})"/>
-                <circle cx="120" cy="110" r="7" fill="{color}" style="filter: drop-shadow(0 0 6px {glow})"/>
-                <circle cx="120" cy="110" r="3" fill="#0a1628"/>
-                <!-- Labels -->
-                <text x="38" y="130" fill="#6b83a6" font-size="10" text-anchor="middle">0%</text>
-                <text x="120" y="22" fill="#6b83a6" font-size="10" text-anchor="middle">50%</text>
-                <text x="202" y="130" fill="#6b83a6" font-size="10" text-anchor="middle">100%</text>
-            </svg>
+        <div style="margin: 1.5rem 0 0.5rem;">
+            <div style="
+                background: rgba(255,255,255,0.08);
+                border-radius: 100px;
+                height: 20px;
+                overflow: hidden;
+            ">
+                <div style="
+                    width: {bar_width}%;
+                    height: 100%;
+                    background: linear-gradient(90deg, {color}, {color}cc);
+                    border-radius: 100px;
+                    transition: width 0.5s ease;
+                "></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
+                <span style="font-size:0.68rem;color:#6b83a6">0%</span>
+                <span style="font-size:0.68rem;color:#6b83a6">50%</span>
+                <span style="font-size:0.68rem;color:#6b83a6">100%</span>
+            </div>
         </div>
         <div class="gauge-value-label" style="color:{color}">{pct:.1f}%</div>
         <div class="gauge-risk-label" style="color:{color}">Risque {risk_label}</div>
