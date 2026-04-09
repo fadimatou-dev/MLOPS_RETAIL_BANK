@@ -1,33 +1,39 @@
-deploy:
+name: CI/CD MLOps
+on:
+  push:
+    branches: [ main, feature/cicd ]
+
+jobs:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    needs: tests
     steps:
-      - name: Checkout du code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Installer les dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancer les tests
+        run: python -m pytest tests/ -v
 
       - name: Configurer AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-3 
+          aws-region: eu-west-3
 
-      - name: Login à Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: mlops-retail-bank
-          IMAGE_TAG: latest
+      - name: Login sur ECR
         run: |
-          # Construction de l'image via le Dockerfile dans /cicd
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f cicd/Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin ${{ secrets.ECR_REPO_URI }}
 
-      - name: Mettre à jour le service ECS
+      - name: Build et Push image Docker
         run: |
-          aws ecs update-service --cluster MLOPS_RETAIL_BANK_Cluster --service mlops-catboost-service-5uem603i --force-new-deployment
+          docker build -f cicd/Dockerfile -t ${{ secrets.ECR_REPO_URI }}:latest .
+          docker push ${{ secrets.ECR_REPO_URI }}:latest
+
+      - name: Déployer sur ECS
+        run: |
+          aws ecs update-service --cluster MLOPS_RETAIL_BANK_Cluster --service mlops-catboost-service --force-new-deployment
