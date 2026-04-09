@@ -52,7 +52,6 @@ MODEL_NOTEBOOK_METRICS = {
     },
 }
 
-
 # =========================
 # CSS personnalisé — Design bancaire premium
 # =========================
@@ -426,7 +425,6 @@ def inject_custom_css():
     </style>
     """, unsafe_allow_html=True)
 
-
 # =========================
 # Composant : Bannière
 # =========================
@@ -445,7 +443,6 @@ def render_banner():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
 
 # =========================
 # Composant : Jauge SVG
@@ -493,7 +490,6 @@ def render_gauge(probability: float, risk_label: str):
     </div>
     """, unsafe_allow_html=True)
 
-
 # =========================
 # Composant : Résultat
 # =========================
@@ -520,7 +516,6 @@ def render_result_card(predicted_class: int, probability: float, threshold: floa
             </div>
         </div>
         """, unsafe_allow_html=True)
-
 
 # =========================
 # Composant : Comparaison modèles
@@ -558,7 +553,6 @@ def render_model_comparison():
     <div style="font-size:0.68rem;color:#6b83a6;text-align:right;margin-top:0.5rem">ROC-AUC (test set)</div>
     """, unsafe_allow_html=True)
 
-
 # =========================
 # Data / model loading
 # =========================
@@ -576,7 +570,6 @@ def load_training_arrays() -> tuple[pd.DataFrame, pd.Series]:
     y_series = pd.Series(y, name="default")
     return X_df, y_series
 
-
 @st.cache_resource(show_spinner=False)
 def load_or_train_model() -> Pipeline:
     if MODEL_PATH.exists():
@@ -591,7 +584,6 @@ def load_or_train_model() -> Pipeline:
     ])
     model.fit(X_df, y_series)
     return model
-
 
 # =========================
 # Feature engineering
@@ -619,7 +611,6 @@ def build_raw_feature_frame(
         "total_debt_outstanding": total_debt_outstanding,
     }])
 
-
 def standardize_features(raw_features: pd.DataFrame) -> pd.DataFrame:
     scaled = raw_features.copy()
     for col in FEATURE_NAMES:
@@ -630,7 +621,6 @@ def standardize_features(raw_features: pd.DataFrame) -> pd.DataFrame:
         scaled[col] = (scaled[col] - mean_) / std_
     return scaled
 
-
 def get_risk_label(probability: float) -> str:
     if probability < 0.20:
         return "Faible"
@@ -640,10 +630,8 @@ def get_risk_label(probability: float) -> str:
         return "Élevé"
     return "Très élevé"
 
-
 def format_pct(value: float) -> str:
     return f"{100 * value:.2f}%"
-
 
 # =========================
 # APP PRINCIPALE
@@ -727,26 +715,22 @@ with col_left:
 
 with col_right:
     st.markdown("## Résultat de l'analyse")
-
+    
+    # On définit l'état vide
     if not submitted:
         st.markdown("""
-        <div style="
-            background: rgba(255,255,255,0.03);
-            border: 1px dashed rgba(201,168,76,0.2);
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            text-align: center;
-            color: #6b83a6;
-            margin-top: 1rem;
-        ">
+        <div style="background: rgba(255,255,255,0.03); border: 1px dashed rgba(201,168,76,0.2); border-radius: 20px; padding: 3rem 2rem; text-align: center; color: #6b83a6; margin-top: 1rem;">
             <div style="font-size:2.5rem;margin-bottom:1rem">📋</div>
             <div style="font-family:'Playfair Display',serif;font-size:1rem;color:#9fb3d1">
                 Renseignez les données client<br>et lancez la simulation
             </div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # En cas de soumission, on affiche DIRECTEMENT les éléments
     else:
         try:
+            # Vos calculs habituels
             raw_features = build_raw_feature_frame(
                 credit_lines_outstanding=int(credit_lines_outstanding),
                 loan_amt_outstanding=float(loan_amt_outstanding),
@@ -755,35 +739,25 @@ with col_right:
             )
             scaled_features = standardize_features(raw_features)
             model = load_or_train_model()
-
             default_probability = float(model.predict_proba(scaled_features)[0, 1])
             predicted_class = int(default_probability >= threshold)
             risk_label = get_risk_label(default_probability)
 
-            # Jauge visuelle
-            render_gauge(default_probability, risk_label)
+            # --- LA MODIFICATION ICI ---
+            # Au lieu de fonctions HTML complexes, on utilise des composants natifs 
+            # pour vérifier si l'erreur disparaît
+            
+            if predicted_class == 1:
+                st.error(f"Risque Détecté : {risk_label}")
+            else:
+                st.success(f"Dossier Sain : {risk_label}")
 
-            # Carte résultat
-            render_result_card(predicted_class, default_probability, threshold)
+            st.metric("Probabilité de défaut", f"{default_probability:.2%}")
 
-            # Métriques rapides
-            st.markdown("---")
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Probabilité", format_pct(default_probability))
-            m2.metric("Classe", "Défaut 🔴" if predicted_class == 1 else "Sain 🟢")
-            m3.metric("Niveau risque", risk_label)
-
-            # Variables calculées
-            with st.expander("📐 Variables calculées & standardisées"):
-                st.markdown("**Variables brutes dérivées**")
-                engineered_display = raw_features.rename(columns={
-                    "debt_to_income": "Ratio Dette/Revenu",
-                    "credit_lines_outstanding": "Lignes de crédit",
-                    "financial_burden": "Charge financière (€)",
-                    "total_debt_outstanding": "Dette totale (€)",
-                }).T
-                engineered_display.columns = ["Valeur"]
-                st.dataframe(engineered_display, use_container_width=True)
+            # Si cela fonctionne, réintroduisez render_gauge(default_probability, risk_label) 
+            # pour voir si c'est elle qui cause le crash.
 
         except Exception as exc:
-            st.exception(exc)
+            st.error(f"Erreur technique : {exc}")
+
+
