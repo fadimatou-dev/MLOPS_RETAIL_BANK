@@ -39,7 +39,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: mlops-catboost-repo # À vérifier dans ta console ECR
+          ECR_REPOSITORY: mlops-retail-bank
           IMAGE_TAG: latest
         run: |
           # On build l'image en utilisant le Dockerfile dans le dossier cicd
