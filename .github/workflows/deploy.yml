@@ -13,7 +13,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Installer les dépendances
         run: |
-          pip install pytest numpy joblib scikit-learn streamlit pandas
+          pip install -r requirements.txt
+          pip install pytest
       - name: Lancer les tests
         run: |
           pytest tests/test_app.py -v
