@@ -43,7 +43,20 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f cicd/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-      - name: Mettre à jour le service ECS
+      - name: Mettre à jour la task definition et déployer
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: mlops-retail-bank
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws ecs update-service --cluster MLOPS_RETAIL_BANK_Cluster --service mlops-catboost-service-5uem603i --force-new-deployment
+          TASK_DEF=$(aws ecs describe-task-definition --task-definition mlops-catboost --query 'taskDefinition' --output json)
+          NEW_TASK_DEF=$(echo $TASK_DEF | python3 -c "
+          import json, sys
+          td = json.load(sys.stdin)
+          td['containerDefinitions'][0]['image'] = '$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG'
+          for key in ['taskDefinitionArn','revision','status','requiresAttributes','compatibilities','registeredAt','registeredBy']:
+              td.pop(key, None)
+          print(json.dumps(td))
+          ")
+          NEW_REVISION=$(aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --query 'taskDefinition.taskDefinitionArn' --output text)
+          aws ecs update-service --cluster MLOPS_RETAIL_BANK_Cluster --service mlops-catboost-service-5uem603i --task-definition $NEW_REVISION --force-new-deployment
